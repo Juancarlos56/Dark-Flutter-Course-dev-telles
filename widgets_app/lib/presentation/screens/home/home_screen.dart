@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:widgets_app/config/menu/menu_items.dart';
-import 'package:widgets_app/presentation/screens/buttons/buttons_screens.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -59,7 +59,10 @@ class _CustomListTitle extends StatelessWidget {
         //     builder: (context) => const ButtonScreen(),
         //   ),
         // );
-        Navigator.pushNamed(context, menuItem.link);
+
+        //Navigator.pushNamed(context, menuItem.link);
+        //Go ROuter -- Recommend -- push para volver -- go para ir a esa pagina
+        context.push(menuItem.link);
       },
     );
   }
