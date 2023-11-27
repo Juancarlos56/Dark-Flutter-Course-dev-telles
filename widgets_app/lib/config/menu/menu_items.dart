@@ -34,4 +34,9 @@ const appMenuItems = <MenuItem>[
       subtitle: 'Indicadores en pantalla',
       link: '/snackbars',
       icon: Icons.info_outline),
+  MenuItem(
+      title: 'Animated Container',
+      subtitle: 'Stateful Widget Animated',
+      link: '/animated',
+      icon: Icons.play_circle_fill_outlined),
 ];
