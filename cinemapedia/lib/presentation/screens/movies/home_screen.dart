@@ -1,4 +1,4 @@
-import 'package:cinemapedia/presentation/providers/movies/movies_providers.dart';
+import 'package:cinemapedia/presentation/providers/providers.dart';
 import 'package:cinemapedia/presentation/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +12,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: _HomeView(),
+      bottomNavigationBar: CustomBottomNavegation(),
     );
   }
 }
@@ -28,27 +29,79 @@ class _HomeViewState extends ConsumerState<_HomeView> {
   void initState() {
     super.initState();
     ref.read(nowPlayingMoviesProvier.notifier).loadNextPage();
+    ref.read(popularMoviesProvier.notifier).loadNextPage();
+    ref.read(upCommingMoviesProvier.notifier).loadNextPage();
+    ref.read(topRatedMoviesProvier.notifier).loadNextPage();
   }
 
   @override
   Widget build(BuildContext context) {
-    final nowPlayingMovies = ref.watch(nowPlayingMoviesProvier);
+    final initialLoading = ref.watch(initialLoadingProvider);
 
-    return Column(
-      children: [
-        CustomAppbar(),
-        Expanded(
-          child: ListView.builder(
-            itemCount: nowPlayingMovies.length,
-            itemBuilder: (context, index) {
-              final movie = nowPlayingMovies[index];
-              return ListTile(
-                title: Text(movie.title),
-              );
-            },
+    if (initialLoading) return const FullScreenLoader();
+
+    final nowPlayingMoviesSlideshow = ref.watch(moviesSlideshowProvider);
+
+    final nowPlayingMovies = ref.watch(nowPlayingMoviesProvier);
+    final popularMovies = ref.watch(popularMoviesProvier);
+    final upCommingMovies = ref.watch(upCommingMoviesProvier);
+    final topRatedMovies = ref.watch(topRatedMoviesProvier);
+
+    return Visibility(
+      visible: !initialLoading,
+      child: CustomScrollView(slivers: [
+        const SliverAppBar(
+          centerTitle: false,
+          floating: true,
+          flexibleSpace: FlexibleSpaceBar(
+            title: CustomAppbar(),
+            titlePadding: EdgeInsets.zero,
           ),
-        )
-      ],
+        ),
+        SliverList(
+            delegate: SliverChildBuilderDelegate(
+                (context, index) => Column(
+                      children: [
+                        MoviesSlideshow(movies: nowPlayingMoviesSlideshow),
+                        MovieHorizontalListview(
+                          movies: nowPlayingMoviesSlideshow,
+                          title: 'En cines',
+                          subtitle: 'Lunes 04',
+                          loadNextPage: () => ref
+                              .read(nowPlayingMoviesProvier.notifier)
+                              .loadNextPage(),
+                        ),
+                        MovieHorizontalListview(
+                          movies: upCommingMovies,
+                          title: 'Proximamente',
+                          subtitle: 'En este mes',
+                          loadNextPage: () => ref
+                              .read(upCommingMoviesProvier.notifier)
+                              .loadNextPage(),
+                        ),
+                        MovieHorizontalListview(
+                          movies: popularMovies,
+                          title: 'Populares',
+                          //subtitle: 'En este mes',
+                          loadNextPage: () => ref
+                              .read(popularMoviesProvier.notifier)
+                              .loadNextPage(),
+                        ),
+                        MovieHorizontalListview(
+                          movies: topRatedMovies,
+                          title: 'Mejor Calificadas',
+                          subtitle: 'de todos los tiempos',
+                          loadNextPage: () => ref
+                              .read(topRatedMoviesProvier.notifier)
+                              .loadNextPage(),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        )
+                      ],
+                    ),
+                childCount: 1))
+      ]),
     );
   }
 }
